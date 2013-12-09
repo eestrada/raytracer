@@ -1,0 +1,10 @@
+CameraLookAt 0 -.2 0
+CameraLookFrom 0 .2 1.2
+CameraLookUp 0 1 0
+FieldOfView 55
+DirectionToLight 0 1 0 LightColor 1 1 1
+AmbientLight 0 0 0
+BackgroundColor .2 .2 .2
+Sphere Center 0 .3 0 Radius .2 Material Reflective .75 .75 .75
+Triangle 0 -.5 .5   1 .5 0 0 -.5 -.5    Material Diffuse 0 0 1 SpecularHighlight 1 1 1 PhongConstant 4
+Triangle 0 -.5 .5   0 -.5 -.5   -1 .5 0 Material Diffuse 1 1 0 SpecularHighlight 1 1 1 PhongConstant 4
