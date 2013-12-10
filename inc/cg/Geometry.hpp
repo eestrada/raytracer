@@ -4,41 +4,49 @@
 #include <ostream>
 #include <vector>
 
-#include "vector3.hpp"
-#include "hvector.hpp"
+#include "Vec3.hpp"
+#include "Vec4.hpp"
 #include "Matrix.hpp"
+#include "rt/Ray.hpp"
 
 namespace cg
 {
 
 struct Geometry
 {
-    std::vector<point3> pts;
-    virtual void draw(const Mat4x4 &mat) = 0;
+    double phong;
+    Clr3 diffuse, specular, reflection;
+    bool reflect;
+    
+    virtual Clr4 trace(const rt::Ray &ray) = 0;
 };
 
-
-struct triangle
+struct Triangle : public Geometry
 {
-    int pos[3];
-    int nml[3];
-    int tex[3];
+    Vec3 pt0, pt1, pt2;
+    virtual Clr4 trace(const rt::Ray &ray);
 };
 
-struct trimesh : public Geometry
+struct Sphere : public Geometry
 {
-    std::vector<normal> nmls;
-    std::vector<uvw> uvs;
-    std::vector<triangle> tris;
+    double radius;
+    Vec3 center;
+    virtual Clr4 trace(const rt::Ray &ray);
+};
 
-    virtual void draw(const Mat4x4 &mat);
+struct TriMesh : public Geometry
+{
+    std::vector<Triangle> mesh;
+    virtual Clr4 trace(const rt::Ray &ray);
 };
 
 } //end namespace
 
-std::ostream & operator<<(std::ostream &out, const cg::triangle &t);
+std::ostream & operator<<(std::ostream &out, const cg::Triangle &t);
 
-std::ostream & operator<<(std::ostream &out, const cg::trimesh &tm);
+std::ostream & operator<<(std::ostream &out, const cg::TriMesh &tm);
+
+std::ostream & operator<<(std::ostream &out, const cg::Sphere &s);
 
 #endif //finish include guard
 

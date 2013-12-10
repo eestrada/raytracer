@@ -20,38 +20,6 @@ const uint8_t *bitmap::raw() const
     return &(this->data[0]);
 }
 
-const double & colorRGBA::r() const {return x;}
-double & colorRGBA::r() {return x;}
-
-const double & colorRGBA::g() const {return y;}
-double & colorRGBA::g() {return y;}
-
-const double & colorRGBA::b() const {return z;}
-double & colorRGBA::b() {return z;}
-
-const double & colorRGBA::a() const {return w;}
-double & colorRGBA::a() {return w;}
-
-std::vector<uint8_t> colorRGBA::to_bytes()
-{
-    double r,g,b,a;
-    std::vector<uint8_t> retval(4);
-
-    r = utils::fit(this->r(), 0.0, 1.0, 0.0, 255.0);
-    retval[0] = static_cast<uint8_t>(r);
-
-    g = utils::fit(this->g(), 0.0, 1.0, 0.0, 255.0);
-    retval[1] = static_cast<uint8_t>(g);
-
-    b = utils::fit(this->b(), 0.0, 1.0, 0.0, 255.0);
-    retval[2] = static_cast<uint8_t>(b);
-
-    a = utils::fit(this->a(), 0.0, 1.0, 0.0, 255.0);
-    retval[3] = static_cast<uint8_t>(a);
-
-    return retval;
-}
-    
 ////////////////////////////////////////////////////////////
 // Load OpenGL textures from binary ppm files
 ////////////////////////////////////////////////////////////

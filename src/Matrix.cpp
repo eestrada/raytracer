@@ -1,5 +1,5 @@
 #include "cg/Matrix.hpp"
-#include "cg/vector3.hpp"
+#include "cg/Vec3.hpp"
 #include "cg/cg_utils.hpp"
 #include "utils/exceptions.hpp"
 #include <iostream>
@@ -11,48 +11,48 @@ namespace cg
 namespace matrix
 {
 
-Mat4x4 rotate_x(double degrees)
+Mat4 rotate_x(double degrees)
 {
-    Mat4x4 tmp(1.0);
+    Mat4 tmp(1.0);
     double radians = cg::utils::radians(degrees);
 
     tmp.at(1,1) = std::cos(radians);
     tmp.at(2,2) = std::cos(radians);
     tmp.at(1,2) = std::sin(radians);
     tmp.at(2,1) = -std::sin(radians);
-    //std::cerr << "The Mat4x4 rotated along the X axis is \n" << tmp << std::endl;
+    //std::cerr << "The Mat4 rotated along the X axis is \n" << tmp << std::endl;
     return tmp;
 }
 
-Mat4x4 rotate_y(double degrees)
+Mat4 rotate_y(double degrees)
 {
-    Mat4x4 tmp(1.0);
+    Mat4 tmp(1.0);
     double radians = cg::utils::radians(degrees);
 
     tmp.at(0,0) = std::cos(radians);
     tmp.at(2,2) = std::cos(radians);
     tmp.at(2,0) = std::sin(radians);
     tmp.at(0,2) = -std::sin(radians);
-    //std::cerr << "The Mat4x4 rotated along the Y axis is \n" << tmp << std::endl;
+    //std::cerr << "The Mat4 rotated along the Y axis is \n" << tmp << std::endl;
     return tmp;
 }
 
-Mat4x4 rotate_z(double degrees)
+Mat4 rotate_z(double degrees)
 {
-    Mat4x4 tmp(1.0);
+    Mat4 tmp(1.0);
     double radians = cg::utils::radians(degrees);
 
     tmp.at(0,0) = std::cos(radians);
     tmp.at(1,1) = std::cos(radians);
     tmp.at(1,0) = -std::sin(radians);
     tmp.at(0,1) = std::sin(radians);
-    //std::cerr << "The Mat4x4 rotated along the Y axis is \n" << tmp << std::endl;
+    //std::cerr << "The Mat4 rotated along the Y axis is \n" << tmp << std::endl;
     return tmp;
 }
 
-Mat4x4 translate(double x, double y, double z)
+Mat4 translate(double x, double y, double z)
 {
-    Mat4x4 tmp(1.0);
+    Mat4 tmp(1.0);
 
     tmp.at(3, 0) = x;
     tmp.at(3, 1) = y;
@@ -61,9 +61,9 @@ Mat4x4 translate(double x, double y, double z)
     return tmp;
 }
 
-Mat4x4 scale(double x, double y, double z)
+Mat4 scale(double x, double y, double z)
 {
-    Mat4x4 tmp(1.0);
+    Mat4 tmp(1.0);
 
     tmp.at(0, 0) = x;
     tmp.at(1, 1) = y;
@@ -72,22 +72,22 @@ Mat4x4 scale(double x, double y, double z)
     return tmp;
 }
 
-Mat4x4 uniform_scale(double s)
+Mat4 uniform_scale(double s)
 {
     return scale(s,s,s);
 }
 
-Mat4x4 rotate(double x, double y, double z, double degrees)
+Mat4 rotate(double x, double y, double z, double degrees)
 {
-    throw err::not_implemented("Mat4x4 rotate(double x, double y, double z, double degrees)");
+    throw err::not_implemented("Mat4 rotate(double x, double y, double z, double degrees)");
 
-    vector v;
+    Vec3 v;
     v.x = x;
     v.y = y;
     v.z = z;
 
     v = v.normalized();
-    Mat4x4 tmp(1.0);
+    Mat4 tmp(1.0);
     double radians = cg::utils::radians(degrees);
     double c = std::cos(radians);
     double s = std::sin(radians);
@@ -99,9 +99,9 @@ Mat4x4 rotate(double x, double y, double z, double degrees)
 }
 
 // inversion code based on MESA implementation of the gluInvertMatrix function of the GLU library
-Mat4x4 inverted(const Mat4x4 &m)
+Mat4 inverted(const Mat4 &m)
 {
-    Mat4x4 inv(0.0);
+    Mat4 inv(0.0);
 
     inv[0] = m[5]  * m[10] * m[15] - 
              m[5]  * m[11] * m[14] - 
@@ -219,13 +219,13 @@ Mat4x4 inverted(const Mat4x4 &m)
 
     if (det == 0)
     {
-        throw err::exception("Mat4x4 could not be inverted");
+        throw err::exception("Mat4 could not be inverted");
         return false;
     }
 
     det = 1.0 / det;
 
-    Mat4x4 invOut(0);
+    Mat4 invOut(0);
     for (int i = 0; i < 16; ++i)
     {
         invOut[i] = inv[i] * det;

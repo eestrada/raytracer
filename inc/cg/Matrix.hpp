@@ -110,49 +110,49 @@ private:
     double *val_ptr;
 };
 
-typedef square_matrix<4> Mat4x4;
+typedef square_matrix<4> Mat4;
 
 namespace matrix
 {
 /*
  * Return a matrix that is the inverse of the input matrix
  */
-Mat4x4 inverted(const Mat4x4 &m);
+Mat4 inverted(const Mat4 &m);
 
 /*
  * Rotate about an arbitrary axis
  */
-Mat4x4 rotate(double x, double y, double z, double degrees);
+Mat4 rotate(double x, double y, double z, double degrees);
 
 /*
  * Rotate about the X axis
  */
-Mat4x4 rotate_x(double degrees);
+Mat4 rotate_x(double degrees);
 
 /*
  * Rotate about the Y axis
  */
-Mat4x4 rotate_y(double degrees);
+Mat4 rotate_y(double degrees);
 
 /*
  * Rotate about the Z axis
  */
-Mat4x4 rotate_z(double degrees);
+Mat4 rotate_z(double degrees);
 
 /*
- * Translate Mat4x4 matrix
+ * Translate Mat4 matrix
  */
-Mat4x4 translate(double x, double y, double z);
+Mat4 translate(double x, double y, double z);
 
 /*
- * Scale Mat4x4 matrix
+ * Scale Mat4 matrix
  */
-Mat4x4 scale(double x, double y, double z);
+Mat4 scale(double x, double y, double z);
 
 /*
- * Scale Mat4x4 matrix evenly in all axes
+ * Scale Mat4 matrix evenly in all axes
  */
-Mat4x4 uniform_scale(double s);
+Mat4 uniform_scale(double s);
 }
 
 } // end namespace cg

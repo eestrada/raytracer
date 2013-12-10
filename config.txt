@@ -1,3 +1,0 @@
-car:car.obj:car.ppm
-ParkingLot:ParkingLot.obj:ParkingLot.ppm
-tire:tire.obj:tire.ppm

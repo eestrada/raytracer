@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "cg_utils.hpp"
-#include "hvector.hpp"
+#include "Vec4.hpp"
 
 
 namespace cg
@@ -31,23 +31,6 @@ struct bitmap
     size_t width, height;
 
     const uint8_t *raw() const;
-};
-
-struct colorRGBA : public hvector
-{
-    const double & r() const;
-    double & r();
-
-    const double & g() const;
-    double & g();
-
-    const double & b() const;
-    double & b();
-
-    const double & a() const;
-    double & a();
-
-    std::vector<uint8_t> to_bytes();
 };
 
 ////////////////////////////////////////////////////////////
