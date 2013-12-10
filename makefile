@@ -1,6 +1,7 @@
 BIN = ./test.bin
 INPUT = cat test_input.txt
-#ARGS = input.txt
+ARGS = ./scenes/diffuse.rayTracing
+DISPLAY = display
 
 SRCDIR = ./src
 INCDIR = ./inc
@@ -19,7 +20,7 @@ CXXFLAGS = -std=c++0x -O0 -g -Wall -pedantic $(INCLUDES)
 
 run : $(BIN)
 	@ echo "Testing executable"
-	$(BIN) $(ARGS)
+	$(BIN) $(ARGS) | $(DISPLAY)
 
 bin : $(BIN)
 
