@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <vector>
+#include <memory>
 
 #include "Vec3.hpp"
 #include "Vec4.hpp"
@@ -18,28 +19,29 @@ struct Geometry
     Clr3 diffuse, specular, reflection;
     bool reflect;
     
-    virtual Clr4 trace(const rt::Ray &ray) = 0;
+    virtual rt::RayHit trace(const rt::Ray &ray) = 0;
 };
 
 struct Triangle : public Geometry
 {
     Vec3 pt0, pt1, pt2;
-    virtual Clr4 trace(const rt::Ray &ray);
+    virtual rt::RayHit trace(const rt::Ray &ray);
 };
 
 struct Sphere : public Geometry
 {
     double radius;
     Vec3 center;
-    virtual Clr4 trace(const rt::Ray &ray);
+    virtual rt::RayHit trace(const rt::Ray &ray);
 };
 
 struct TriMesh : public Geometry
 {
     std::vector<Triangle> mesh;
-    virtual Clr4 trace(const rt::Ray &ray);
+    virtual rt::RayHit trace(const rt::Ray &ray);
 };
 
+typedef std::shared_ptr<Geometry> geo_ptr;
 } //end namespace
 
 std::ostream & operator<<(std::ostream &out, const cg::Triangle &t);

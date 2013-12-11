@@ -1,67 +1,80 @@
 #if !defined(OBJECT_HPP)
 #define OBJECT_HPP
 #include <memory>
+#include <vector>
 
 #include "Vec3.hpp"
+#include "rt/Ray.hpp"
 #include "Matrix.hpp"
 #include "Geometry.hpp"
 
 namespace obj
 {
 
-class object
+struct object
 {
 public: // Constructors
     object();
 public: // Functions
-    cg::Mat4 getFinalXform() const;
+    /*
+     * Gets the transforms of this object AND its parent. Works recursively.
+     */
+    cg::Mat4 get_xform() const;
 
-    virtual void set_geo(std::shared_ptr<cg::Geometry> g_in);
-    virtual void draw() = 0; // This makes this object an abstract class
 
 public: // Variables
     cg::Mat4 transform;
     std::shared_ptr<object> parent;
-    static std::shared_ptr<object> scene_camera;
 };
 
-class geo : public object
+
+struct geo : public object
 {
 public:
     virtual void set_geo(std::shared_ptr<cg::Geometry> g_in);
-    virtual void draw();
+    virtual rt::RayHit trace(const rt::Ray &ray);
 
     std::shared_ptr<cg::Geometry> g;
 };
 
-class null : public object
+struct camera : public object
 {
-public:
-    virtual void draw();
-
-public: // variables
-    static bool drawable;
-};
-
-class camera : public object
-{
-public:
-    camera();
-    virtual void draw();
-    virtual void build_perspective();
-
-public: // Variables
     double fovy, aspect, znear, zfar;
-    cg::Mat4 perspective;
     cg::Vec3 lookat, lookfrom, lookup;
 };
 
-class light : public object
+struct light : public object
 {
-public:
-    virtual void draw();
+    virtual cg::Clr3 contribution(const cg::Vec3 &position);
+    cg::Clr3 lgt_clr;
 };
 
-}
+typedef light amb_lght;
+
+struct dist_lght : public light
+{
+    cg::Vec3 lookat;
+};
+
+struct pt_lght : public light
+{
+    cg::Vec3 pos;
+};
+
+struct spot_lght : public pt_lght
+{
+    cg::Vec3 dir;
+    double cone_angle, penumbra;
+};
+
+typedef object null;
+
+std::vector< std::shared_ptr<geo> > scene_geo;
+
+std::vector< std::shared_ptr<light> > scene_lights;
+
+std::shared_ptr<object> scene_camera;
+} // end obj namespace
+
 #endif //finish include guard
 
