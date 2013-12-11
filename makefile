@@ -1,17 +1,17 @@
 BIN = ./test.bin
-INPUT = cat test_input.txt
-ARGS = ./scenes/diffuse.rayTracing
+INPUT = ./scenes/diffuse.rayTracing
+OUTPUT = ./tmp.ppm
+ARGS = $(INPUT) $(OUTPUT)
 DISPLAY = display
 
 SRCDIR = ./src
 INCDIR = ./inc
 OBJDIR = ./obj
-OBJS = $(OBJDIR)/main.o $(OBJDIR)/Renderer.o $(OBJDIR)/Geometry.o $(OBJDIR)/image.o $(OBJDIR)/Vec3.o $(OBJDIR)/Vec4.o $(OBJDIR)/Matrix.o $(OBJDIR)/Object.o 
+OBJS = $(OBJDIR)/main.o $(OBJDIR)/Renderer.o $(OBJDIR)/Geometry.o $(OBJDIR)/Image.o $(OBJDIR)/Vec3.o $(OBJDIR)/Vec4.o $(OBJDIR)/Matrix.o $(OBJDIR)/Object.o 
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 INCS = $(wildcard $(INCDIR)/*.h*) $(wildcard $(INCDIR)/cg/*.h*) $(wildcard $(INCDIR)/utils/*.h*) $(wildcard $(INCDIR)/cg/*.inl) 
 
-OGLLIBS ?= -lglut -lGLU -lGL 
 INCLUDES= -I$(INCDIR)/
 CXX ?= c++
 CXXFLAGS = -std=c++0x -O0 -g -Wall -pedantic $(INCLUDES)
@@ -20,7 +20,7 @@ CXXFLAGS = -std=c++0x -O0 -g -Wall -pedantic $(INCLUDES)
 
 run : $(BIN)
 	@ echo "Testing executable"
-	$(BIN) $(ARGS) | $(DISPLAY)
+	$(BIN) $(ARGS)
 
 bin : $(BIN)
 
@@ -28,8 +28,9 @@ test : clean memcheck
 
 clean :
 	@ echo "Removing generated files"
-	rm -f $(BIN)
-	rm -rf $(OBJDIR)
+	@rm -vf $(BIN)
+	@rm -vf $(OUTPUT)
+	@rm -vrf $(OBJDIR)
 
 memcheck : $(BIN) 
 	@ echo "Running valgrind to check for memory leaks"
@@ -39,7 +40,7 @@ memcheck : $(BIN)
 
 $(BIN) : $(OBJS) $(INCS)
 	@ echo "Compiling binary"
-	$(CXX) -o $(BIN) $(OBJS) $(CXXFLAGS) $(INCLUDES) $(OGLLIBS)
+	$(CXX) -o $(BIN) $(OBJS) $(CXXFLAGS) $(INCLUDES)
 	@ echo
 
 obj/%.o : src/%.cpp $(INCS)

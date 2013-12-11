@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cstdint>
 
-#include "cg/image.hpp"
+#include "cg/Image.hpp"
 #include "cg/cg_utils.hpp"
 #include "utils/exceptions.hpp"
 

@@ -3,6 +3,7 @@
 #include <ostream>
 #include <fstream>
 #include "utils/exceptions.hpp"
+#include "cg/Image.hpp"
 #include "rt/Renderer.hpp"
 
 namespace rt // rt for Ray Trace
@@ -12,7 +13,16 @@ namespace rt // rt for Ray Trace
 // Function declarations
 int render(std::istream &in, std::ostream &out)
 {
-    out << in.rdbuf();
+    using cg::pixel_ctor;
+    cg::Image img(4,1);
+
+    img[0] = pixel_ctor<float>(1,0,0,1);
+    img[1] = pixel_ctor<float>(0,1,0,1);
+    img[2] = pixel_ctor<float>(0,0,1,1);
+    img[3] = pixel_ctor<float>(1,1,1,1);
+
+    cg::writePPM(img, out);
+    //out << in.rdbuf();
     out.flush();
     return 0;
 }
