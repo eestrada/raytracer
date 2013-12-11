@@ -21,21 +21,17 @@ namespace utils
     }
 
     template <typename T>
-    T mix(T a, T b, double bias)
+    T lerp(T a, T b, double bias)
     {
-        double complement = 1 - bias;
-
-        a = a * bias;
-        b = b * complement;
-
-        return a + b;
+        return (a * (1.0 - bias)) + (b * bias);
     }
 
     template <typename T>
     T fit(T value, T oldmin, T oldmax, T newmin, T newmax)
     {
-        double bias = clamp(static_cast<double>(value - oldmin)/static_cast<double>(oldmax - oldmin), 0.0, 1.0);
-        return mix(newmin, newmax, bias);
+        double bias = clamp(double(value - oldmin)/double(oldmax - oldmin), 0.0, 1.0);
+
+        return lerp(newmin, newmax, bias);
     }
 
     template <typename T>
