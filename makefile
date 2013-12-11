@@ -7,9 +7,9 @@ DISPLAY = display
 SRCDIR = ./src
 INCDIR = ./inc
 OBJDIR = ./obj
-OBJS = $(OBJDIR)/main.o $(OBJDIR)/Renderer.o $(OBJDIR)/Geometry.o $(OBJDIR)/Image.o $(OBJDIR)/Vec3.o $(OBJDIR)/Vec4.o $(OBJDIR)/Matrix.o $(OBJDIR)/Object.o 
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
+OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
 INCS = $(wildcard $(INCDIR)/*.h*) $(wildcard $(INCDIR)/cg/*.h*) $(wildcard $(INCDIR)/utils/*.h*) $(wildcard $(INCDIR)/cg/*.inl) 
 
 INCLUDES= -I$(INCDIR)/
