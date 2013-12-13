@@ -16,6 +16,7 @@ struct Ray
 
 struct RayHit
 {
+    Ray data;
     cg::Clr4 clr;
     double distance;
     bool hit;

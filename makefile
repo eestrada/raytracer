@@ -10,7 +10,7 @@ OBJDIR = ./obj
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
-INCS = $(wildcard $(INCDIR)/*.h*) $(wildcard $(INCDIR)/cg/*.h*) $(wildcard $(INCDIR)/utils/*.h*) $(wildcard $(INCDIR)/cg/*.inl) 
+INCS = $(wildcard $(INCDIR)/*.h*) $(wildcard $(INCDIR)/rt/*.*) $(wildcard $(INCDIR)/cg/*.*) $(wildcard $(INCDIR)/utils/*.*) 
 
 INCLUDES= -I$(INCDIR)/
 CXX ?= c++

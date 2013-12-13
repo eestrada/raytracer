@@ -42,35 +42,46 @@ struct camera : public object
     uint16_t xres, yres;
     double fov, aspect, znear, zfar;
     cg::Vec3 lookat, lookfrom, lookup;
+    cg::Clr3 bg;
+
+    rt::Ray get_ray(uint16_t x, uint16_t y) const;
 };
 
 struct light : public object
 {
-    virtual cg::Clr3 contribution(const cg::Vec3 &position);
-    cg::Clr3 lgt_clr;
+    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
+    cg::Clr3 clr;
 };
-
-typedef light amb_lght;
 
 struct dist_lght : public light
 {
-    virtual cg::Clr3 contribution(const cg::Vec3 &position);
-    cg::Vec3 lookat;
+    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
+//protected:
+public:
+    cg::Vec3 dir_to_light;
 };
 
 struct pt_lght : public light
 {
-    virtual cg::Clr3 contribution(const cg::Vec3 &position);
+    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
+protected:
     cg::Vec3 pos;
 };
 
 struct spot_lght : public pt_lght
 {
-    virtual cg::Clr3 contribution(const cg::Vec3 &position);
+    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
+
+protected:
     cg::Vec3 dir;
     double cone_angle, penumbra;
 };
 
+typedef light amb_lght;
 typedef object null;
 
 struct scene

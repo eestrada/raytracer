@@ -14,9 +14,19 @@ struct Vec3
     Vec3(const Vec3 &other);
 
     double length() const;
+    double length2() const;
     double dot(const Vec3 &other) const;
     Vec3 cross(const Vec3 &other) const;
     Vec3 normalized() const;
+
+    // Operator Overloads
+    Vec3 operator*(const double &v) const;
+    Vec3 operator*(const Vec3 &other) const;
+    Vec3 operator-(const Vec3 &other) const;
+    Vec3 operator+(const Vec3 &other) const;
+    Vec3 & operator+=(const Vec3 &other);
+    Vec3 & operator*=(const Vec3 &other);
+    Vec3 operator-() const;
 
     // Color helpers
     double & r();
