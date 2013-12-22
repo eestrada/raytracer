@@ -26,9 +26,12 @@ struct Geometry
 
 struct Triangle : public Geometry
 {
-    Vec3 pt0, pt1, pt2;
+    void set_points(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2);
     virtual rt::RayHit_ptr intersect(const rt::Ray &ray) const;
     virtual std::string to_string(void) const;
+
+protected:
+    Vec3 pt0, pt1, pt2, nml;
 };
 
 struct Sphere : public Geometry

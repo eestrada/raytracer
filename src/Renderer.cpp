@@ -106,9 +106,14 @@ obj::scene parse_scene_file(std::istream &in)
             tmp_geo->g = triangle;
             scn.scene_geo.push_back(tmp_geo);
 
-            strm >> triangle->pt0.x >> triangle->pt0.x >> triangle->pt0.x;
-            strm >> triangle->pt1.x >> triangle->pt1.x >> triangle->pt1.x;
-            strm >> triangle->pt2.x >> triangle->pt2.x >> triangle->pt2.x;
+            cg::Vec3 v0, v1, v2;
+
+            // Reverse point order to simplify math later.
+            strm >> v2.x >> v2.y >> v2.z;
+            strm >> v1.x >> v1.y >> v1.z;
+            strm >> v0.x >> v0.y >> v0.z;
+
+            triangle->set_points(v0, v1, v2);
 
             tmp.clear();
             getline(strm, tmp);
