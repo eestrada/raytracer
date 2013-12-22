@@ -2,6 +2,7 @@
 #define RAY_HPP
 
 #include <cstdint>
+#include <memory>
 #include "cg/Vec3.hpp"
 #include "cg/Vec4.hpp"
 
@@ -19,8 +20,11 @@ struct RayHit
     Ray data;
     cg::Clr4 clr;
     double distance;
-    bool hit;
 };
 
-} // End namespace rt
+typedef std::shared_ptr<RayHit> RayHit_ptr;
+typedef std::shared_ptr<Ray> Ray_ptr;
+} // End namespace "rt"
+
 #endif // end include guard
+

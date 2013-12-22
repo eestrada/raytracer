@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include "cg/Geometry.hpp"
 #include "utils/exceptions.hpp"
@@ -6,44 +7,48 @@
 namespace cg
 {
 
-rt::RayHit Sphere::trace(const rt::Ray &ray)
+rt::RayHit_ptr Sphere::intersect(const rt::Ray &ray) const
 {
-    rt::RayHit rval;
-    rval.hit = false;
+    Vec3 L = this->center - ray.pos;
+    double tca = L.dot(ray.dir.normalized());
+    if (tca < 0) return rt::RayHit_ptr(); // We already know if the intersection is behind us.
 
-    Vec3 OC = this->center - ray.pos;
-    double tca = OC.dot(ray.dir);
-    if (tca < 0) return rval;
-    double d2 = OC.length2() - tca * tca;
-    double radius2 = radius * radius;
-    if(d2 > radius2)return rval;
+    double d2 = L.length2() - tca * tca;
+    double radius2 = this->radius * this->radius;
+    if(d2 > radius2) return rt::RayHit_ptr(); // The ray angle is greater than the radius.
 
+    // If we made it this far, we have successfully intersected.
     double thc = std::sqrt(radius2 - d2);
-    rval.hit = true;
-    rval.distance = tca - thc;
-    rval.data.pos = ray.pos + ray.dir * rval.distance;
-    rval.data.dir = rval.data.pos - this->center;
-    rval.data.dir = rval.data.dir.normalized();
+
+    rt::RayHit_ptr rval(new rt::RayHit());
+    rval->distance = tca - thc;
+    rval->data.pos = ray.pos + ray.dir.normalized() * rval->distance;
+    rval->data.dir = (rval->data.pos - this->center).normalized();
 
     return rval;
 }
 
-rt::RayHit Triangle::trace(const rt::Ray &ray)
+std::string Sphere::to_string(void) const
 {
-    return rt::RayHit();
-    throw err::not_implemented("rt::RayHit Triangle::trace(const rt::Ray &ray)");
+    std::ostringstream out;
+    out << "Sphere: Center " << this->center << " radius " << this->radius; 
+    return out.str();
 }
 
-} //end namespace
-
-std::ostream & operator<<(std::ostream &out, const cg::Triangle &t)
+rt::RayHit_ptr Triangle::intersect(const rt::Ray &ray) const
 {
-    // Add one to these for printing to obj format indexing
-    return out;
+    return rt::RayHit_ptr();
+    throw err::not_implemented("rt::RayHit Triangle::intersect(const rt::Ray &ray)");
 }
 
-std::ostream & operator<<(std::ostream &out, const cg::TriMesh &tm)
+std::string Triangle::to_string(void) const
 {
-    return out;
+    return std::string("Printing a Triangle!");
 }
 
+} //end namespace "cg"
+
+std::ostream & operator<<(std::ostream &out, const cg::Geometry &g)
+{
+    return out << g.to_string() << "\n";
+}

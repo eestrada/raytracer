@@ -10,6 +10,30 @@ namespace cg
 
 namespace matrix
 {
+Mat4 lookat(const Vec3 &forward, const Vec3 &up)
+{
+    Mat4 rval(1);
+    Vec3 x,y = up.normalized(), z = forward.normalized();
+
+    x = y.cross(z).normalized();
+    y = z.cross(x).normalized();
+
+    rval.at(0,0) = x.x;
+    rval.at(1,0) = x.y;
+    rval.at(2,0) = x.z;
+
+    rval.at(0,1) = y.x;
+    rval.at(1,1) = y.y;
+    rval.at(2,1) = y.z;
+
+    rval.at(0,2) = z.x;
+    rval.at(1,2) = z.y;
+    rval.at(2,2) = z.z;
+
+    //std::clog << rval << "\n";
+
+    return rval;
+}
 
 Mat4 rotate_x(double degrees)
 {

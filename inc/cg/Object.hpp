@@ -12,6 +12,9 @@
 namespace obj
 {
 
+struct object;
+typedef std::shared_ptr<object> object_ptr;
+
 struct object
 {
 public: // Constructors
@@ -25,16 +28,16 @@ public: // Functions
 
 public: // Variables
     cg::Mat4 transform;
-    std::shared_ptr<object> parent;
+    object_ptr parent;
 };
 
 struct geo : public object
 {
 public:
-    virtual void set_geo(std::shared_ptr<cg::Geometry> g_in);
-    virtual rt::RayHit trace(const rt::Ray &ray);
+    virtual void set_geo(cg::geo_ptr g_in);
+    virtual rt::RayHit_ptr trace(const rt::Ray &ray) const;
 
-    std::shared_ptr<cg::Geometry> g;
+    cg::geo_ptr g;
 };
 
 struct camera : public object
@@ -44,19 +47,19 @@ struct camera : public object
     cg::Vec3 lookat, lookfrom, lookup;
     cg::Clr3 bg;
 
-    rt::Ray get_ray(uint16_t x, uint16_t y) const;
+    rt::Ray_ptr get_ray(uint16_t x, uint16_t y) const;
 };
 
 struct light : public object
 {
-    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Clr3_ptr shadow(const cg::Vec3 &position) const;
     virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
     cg::Clr3 clr;
 };
 
 struct dist_lght : public light
 {
-    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Clr3_ptr shadow(const cg::Vec3 &position) const;
     virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
 //protected:
 public:
@@ -65,7 +68,7 @@ public:
 
 struct pt_lght : public light
 {
-    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Clr3_ptr shadow(const cg::Vec3 &position) const;
     virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
 protected:
     cg::Vec3 pos;
@@ -73,7 +76,7 @@ protected:
 
 struct spot_lght : public pt_lght
 {
-    virtual bool shadow(const cg::Vec3 &position) const;
+    virtual cg::Clr3_ptr shadow(const cg::Vec3 &position) const;
     virtual cg::Vec3 light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const;
 
 protected:
@@ -93,7 +96,7 @@ std::vector< std::shared_ptr<light> > scene_lights;
 std::shared_ptr<camera> scene_camera;
 };
 
-} // end obj namespace
+} // end namespace "obj"
 
 inline std::ostream & operator<<(std::ostream &out, const obj::camera &cam)
 {

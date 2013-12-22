@@ -12,6 +12,7 @@
     #include <cstdint>
 #endif
 
+#include "Vec3.hpp"
 #include "utils/exceptions.hpp"
 
 namespace cg
@@ -153,6 +154,11 @@ Mat4 scale(double x, double y, double z);
  * Scale Mat4 matrix evenly in all axes
  */
 Mat4 uniform_scale(double s);
+
+/*
+ * Create a lookat Matrix
+ */
+Mat4 lookat(const Vec3 &forward, const Vec3 &up);
 }
 
 } // end namespace cg

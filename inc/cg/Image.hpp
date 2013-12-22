@@ -72,20 +72,13 @@ protected: //variables
     std::vector<pixelf> pixels;
 };
 
-
-struct bitmap
-{
-    std::vector<uint8_t> data;
-    size_t width, height;
-
-    const uint8_t *raw() const;
-};
-
 pixelb float_to_byte(const pixelf &pf, bool premult=true);
 
 bool writePPM(const Image &img, std::ostream &out, bool premult=true);
 
 } //end namespace cg
 
+template<typename T>
+std::ostream & operator <<(std::ostream &out, const cg::pixel_type<T> &p);
 #endif // end include guard
 

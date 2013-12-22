@@ -1,5 +1,6 @@
 #include <memory>
 #include <iostream>
+#include <istream>
 #include <ostream>
 #include <fstream>
 #include <sstream>
@@ -91,7 +92,7 @@ obj::scene parse_scene_file(std::istream &in)
             tmp_geo->g = sphere;
             scn.scene_geo.push_back(tmp_geo);
 
-            strm >> tmp >> sphere->center.x >> sphere->center.x >> sphere->center.x;
+            strm >> tmp >> sphere->center.x >> sphere->center.y >> sphere->center.z;
             strm >> tmp >> sphere->radius;
 
             tmp.clear();
@@ -113,10 +114,12 @@ obj::scene parse_scene_file(std::istream &in)
             getline(strm, tmp);
             parse_material(tmp, tmp_geo->g);
         }
+        else if(tmp == "ObjFile")
+        {
+            throw err::not_implemented("obj file parsing");
+        }
     }
 
-    //std::cerr << *cam << std::endl;
-    //std::cerr << rval.scene_camera->xres << "x" << rval.scene_camera->yres << std::endl;
     return scn;
 }
 
@@ -124,58 +127,76 @@ int render(const obj::scene &scn, std::ostream &out)
 {
     using cg::pixel_ctor;
     auto cam = scn.scene_camera;
-    cg::Image img(cam->xres, cam->yres);
+    cg::Image img(scn.scene_camera->xres, scn.scene_camera->yres);
 
+    std::clog << "Image height: " << img.get_height() << std::endl;
+    std::clog << "Image width: " << img.get_width() << std::endl;
     for(uint16_t h = 0; h < img.get_height(); ++h)
     {
         for(uint16_t w = 0; w < img.get_width(); ++w)
         {
             //Compute primary ray dir
-            rt::Ray pray = cam->get_ray(w, h);
+            rt::Ray_ptr prim_ray = scn.scene_camera->get_ray(w, h);
 
             // Shoot primary ray
-            double min = 1e9;
-            rt::RayHit hit;
-            std::shared_ptr<obj::geo> object = NULL;
+            double min = 1e8;
+            rt::RayHit_ptr hit;
+            std::shared_ptr<obj::geo> object;
 
-            for(auto geo_ptr : scn.scene_geo)
+            for(auto tmp_obj : scn.scene_geo)
             {
-                //std::cerr <<  geo_ptr.get() << std::endl;
-                auto rh = geo_ptr->trace(pray);
-                if(rh.distance < min)
+                rt::RayHit_ptr rh = tmp_obj->trace(*prim_ray);
+                if(rh)
                 {
-                    min = hit.distance;
-                    object = geo_ptr;
-                    hit = rh;
+                    if(rh->distance < min)
+                    {
+                        hit = rh;
+                        min = hit->distance;
+                        object = tmp_obj;
+                    }
                 }
-                continue;
             }
 
-            if(hit.hit) // if we hit something
+            if(hit) // We hit something!
             {
                 for(auto lght_ptr : scn.scene_lights) // Compute light contribution
                 {
-                    if(true) // Shadowed, skip the rest
-                        continue;
+                    // TODO: Check for shadowing
 
-                    // Compute diffuse
-                    // compute Specular
+                    cg::Clr3_ptr shadow = lght_ptr->shadow(hit->data.pos);
+
+                    // If shadow pointer is null, we are fully in shadow, so skip the rest.
+                    if(!shadow) continue;
+
+                    // TODO: Compute diffuse
+                    // TODO: Compute Specular
                 }
-                for(auto geo_ptr : scn.scene_geo) // Compute reflections
+
+                for(auto tmp_obj : scn.scene_geo) // Compute reflections
                 {
-                    continue;
+                    if(!object->g->reflect) continue; // No reflections here. Move along...
+                    
+                    // TODO: Compute object reflections
                 }
-                img.at(w,h) = pixel_ctor<float>(0.0, 0.5, 0.0, 1.0); // Green screen!
+
+                img.at(w,h) = pixel_ctor<float>(
+                    object->g->diffuse.r(),
+                    object->g->diffuse.g(),
+                    object->g->diffuse.b(),
+                    1.0);
             }
             else // We didn't hit anything, set to BG color
             {
-                img.at(w,h) = pixel_ctor<float>(cam->bg.r(), cam->bg.g(), cam->bg.b(), 1.0);
+                img.at(w,h) = pixel_ctor<float>(
+                    scn.scene_camera->bg.r(), 
+                    scn.scene_camera->bg.g(),
+                    scn.scene_camera->bg.b(), 
+                    1.0);
             }
         }
     }
 
     cg::writePPM(img, out);
-    //out.flush();
     return 0;
 }
 
@@ -218,5 +239,5 @@ int main(int argc, char **argv)
     return render(scn, out);
 }
 
-} // End namespace rt
+} // End namespace "rt"
 

@@ -23,6 +23,7 @@ void Image::set_dimensions(uint16_t w, uint16_t h)
     this->height = h;
 
     this->pixels.resize(w * h);
+    this->pixels.shrink_to_fit();
 }
 
 uint16_t Image::get_width() const { return width; }
@@ -36,10 +37,10 @@ pixelf & Image::operator[](uint32_t index)
     { return this->pixels.at(index); }
 
 const pixelf & Image::at(uint16_t x, uint16_t y) const
-    { return this->pixels.at((x * this->width) + y); }
+    { return this->pixels.at(x + (y * this->width)); }
 
 pixelf & Image::at(uint16_t x, uint16_t y)
-    { return this->pixels.at((x * this->width) + y); }
+    { return this->pixels.at(x + (y * this->width)); }
 
 // Nearest pixel interpolation. In other words, point filtering.
 const pixelf & Image::at_uv(double u, double v) const
@@ -59,13 +60,6 @@ pixelf & Image::at_uv(double u, double v)
 
     return this->pixels.at((x * this->width) + y);
 }
-
-/*
-const uint8_t *bitmap::raw() const
-{
-    return &(this->data[0]);
-}
-*/
 
 pixelb float_to_byte(const pixelf &pf, bool premult)
 {
@@ -96,18 +90,20 @@ bool writePPM(const Image &img, std::ostream &out, bool premult)
     out << PPM_header;
     out << img.get_width() << " " << img.get_height() << "\n255\n";
 
-    pixelb tmppxl;
-    for(uint32_t i = 0; i < img.size(); ++i)
+    for(uint16_t y = 0; y < img.get_height(); ++y)
     {
-        tmppxl = float_to_byte(img[i], premult);
+        for(uint16_t x = 0; x < img.get_width(); ++x)
+        {
+            pixelb tmppxl = float_to_byte(img.at(x, y), premult);
 
-        out.put(tmppxl.r);
-        out.put(tmppxl.g);
-        out.put(tmppxl.b);
+            out.put(tmppxl.r);
+            out.put(tmppxl.g);
+            out.put(tmppxl.b);
+        }
     }
 
     return true;
 }
 
-} //end namespace cg
+} //end namespace "cg"
 

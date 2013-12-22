@@ -22,13 +22,18 @@ double Vec3::length2() const
 
 double Vec3::dot(const Vec3 &other) const
 {
-    return x * other.x + y * other.y + z * other.z;
+    return this->x * other.x + this->y * other.y + this->z * other.z;
 }
 
 Vec3 Vec3::cross(const Vec3 &other) const
 {
-    throw err::not_implemented("Vec3 Vec3::cross(const Vec3 &other) const");
-    return Vec3();
+    Vec3 rval;
+
+    rval.x = this->y * other.z - this->z * other.y;
+    rval.y = this->z * other.x - this->x * other.z;
+    rval.z = this->x * other.y - this->y * other.x;
+
+    return rval;
 }
 
 Vec3 Vec3::normalized() const

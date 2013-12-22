@@ -2,6 +2,7 @@
 #define VEC3_HPP
 
 #include <ostream>
+#include <memory>
 
 namespace cg
 {
@@ -38,6 +39,9 @@ struct Vec3
 };
 
 typedef Vec3 Clr3;
+
+typedef std::shared_ptr<Vec3> Vec3_ptr;
+typedef std::shared_ptr<Clr3> Clr3_ptr;
 } //end namespace
 
 // Output convenience functions
