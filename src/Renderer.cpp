@@ -1,4 +1,5 @@
 #include <memory>
+#include <algorithm>
 #include <typeinfo>
 #include <iostream>
 #include <istream>
@@ -167,8 +168,8 @@ int render(const obj::scene &scn, std::ostream &out)
             {
                 // Color to hold result. Init to black.
                 cg::Clr3 clr(0.0);
-                // Add small bias
-                hit->data.pos = hit->data.pos + (hit->data.dir.normalized() * 0.01);
+                // Add very small bias
+                hit->data.pos = hit->data.pos + (hit->data.dir.normalized() * 1e-12);
 
                 for(auto lght_ptr : scn.scene_lights) // Compute light contribution
                 {
@@ -179,33 +180,38 @@ int render(const obj::scene &scn, std::ostream &out)
                     // If shadow pointer is null, we are fully in shadow, so skip the rest.
                     if(unshadowed)
                     {
-                        //clr = object->g->diffuse;
-                        //continue;
+                        // Check for ambient light
                         if(typeid(*lght_ptr) == typeid(obj::light))
                         {
                             clr += object->g->diffuse * (*unshadowed);
-                            //std::clog << "found the ambient light!" << std::endl;
 
-                            continue;
                         }
                         else
                         {
                             // Compute diffuse
-                            cg::Vec3 L = lght_ptr->light_dir(hit->data.pos, hit->data.dir);
-                            double NdotL = hit->data.dir.normalized().dot(-L.normalized());
+                            cg::Vec3 I = prim_ray->dir.normalized();
+                            cg::Vec3 P = hit->data.pos;
+                            cg::Vec3 N = hit->data.dir.normalized();
+                            cg::Vec3 L = lght_ptr->light_dir(P, N);
+                            double NdotL = N.dot(-L.normalized());
                             double diff = cg::utils::clamp(NdotL, 0.0, 1.0);
-                            clr += object->g->diffuse * *unshadowed * diff;
-                            // TODO: Compute Specular
+                            clr += *unshadowed * object->g->diffuse * diff;
+
+                            // Compute Specular
+                            cg::Vec3 R = 2 * (N.dot(L)) * N - L;
+                            double phong = std::max(0.0, I.dot(R));
+                            phong = std::pow(phong, object->g->phong);
+                            clr += *unshadowed * object->g->specular * phong;
                         }
                     }
-
                 }
 
-                for(auto tmp_obj : scn.scene_geo) // Compute reflections
+                if(object->g->reflect) // Whether to compute reflection
                 {
-                    if(!object->g->reflect) continue; // No reflections here. Move along...
-                    
-                    // TODO: Compute object reflections
+                    for(auto tmp_obj : scn.scene_geo) // Compute reflections
+                    {
+                        // TODO: Compute object reflections
+                    }
                 }
 
                 img.at(w,h) = pixel_ctor<float>(clr.r(), clr.g(), clr.b(), 1.0);

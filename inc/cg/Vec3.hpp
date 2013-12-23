@@ -42,9 +42,12 @@ typedef Vec3 Clr3;
 
 typedef std::shared_ptr<Vec3> Vec3_ptr;
 typedef std::shared_ptr<Clr3> Clr3_ptr;
-} //end namespace
+} // end namespace "cg"
 
-// Output convenience functions
+// Convenient operator overloads
+cg::Vec3 operator*(const double &d, const cg::Vec3 &vec);
+
+// Convenient ouput operator overloads
 std::ostream & operator<<(std::ostream &out, const cg::Vec3 &v);
 
 #endif // end include guard

@@ -126,7 +126,12 @@ const double & Vec3::g() const { return this->y; }
 double & Vec3::b() { return this->z; }
 const double & Vec3::b() const { return this->z; }
 
-} // end namespace cg
+} // end namespace "cg"
+
+cg::Vec3 operator*(const double &d, const cg::Vec3 &vec)
+{
+    return cg::Vec3(vec) * d;
+}
 
 std::ostream & operator<<(std::ostream &out, const cg::Vec3 &v)
 {
