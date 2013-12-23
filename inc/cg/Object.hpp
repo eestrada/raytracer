@@ -52,6 +52,7 @@ struct camera : public object
     cg::Clr3 bg;
 
     rt::Ray_ptr get_ray(uint16_t x, uint16_t y) const;
+    cg::Mat4 get_cam_xform() const;
 };
 
 struct light : public object

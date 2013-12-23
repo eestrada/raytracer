@@ -73,7 +73,9 @@ cg::Vec3 dist_lght::light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const
 
 rt::RayHit_ptr geo::trace(const rt::Ray &ray) const
 {
-    return g->intersect(ray);
+    cg::Mat4 xform = this->get_xform();
+    //xform = this->scn.scene_camera->get_cam_xform() * xform;
+    return g->intersect(ray, xform);
 }
 
 cg::Clr3_ptr geo::shade(const rt::Ray &surf, const cg::Vec3 &I) const
@@ -172,6 +174,7 @@ rt::Ray_ptr camera::get_ray(uint16_t x, uint16_t y) const
     double invw = 1.0/this->xres, invy = 1.0/this->yres;
     double aspect = double(this->xres)/double(this->yres);
     double angle = std::tan(PI * 0.5 * (this->fov * 2)/180.0);
+    //double angle = std::tan(PI * 0.5 * (this->fov)/180.0);
 
     double xray = (2 * ((x + 0.5) * invw) - 1) * angle * aspect;
     double yray = (1 - 2 * ((y + 0.5) * invy)) * angle;
@@ -180,16 +183,27 @@ rt::Ray_ptr camera::get_ray(uint16_t x, uint16_t y) const
     pray.y = yray;
     pray.z = -1;
 
-    cg::Mat4 la = cg::matrix::lookat(this->lookfrom - this->lookat, this->lookup);
+    cg::Mat4 xform = cg::matrix::lookat(this->lookfrom - this->lookat, this->lookup);
+    xform *= cg::matrix::translate(this->lookfrom.x, this->lookfrom.y, this->lookfrom.z);
 
-    cg::Vec3 ray = la * cg::Vec4(pray.normalized(), 0.0);
+    cg::Vec3 ray = xform * cg::Vec4(pray.normalized(), 0.0);
+    //cg::Vec3 ray = pray.normalized();
 
     rt::Ray_ptr rval(new rt::Ray());
     rval->dir = ray;
-    rval->pos = this->lookfrom;
+    rval->pos = xform * cg::Vec4(cg::Vec3(), 1.0);
+    //rval->pos = this->lookfrom;
+    //rval->pos.x = rval->pos.y = 0; rval->pos.z = 0;
 
     return rval;
 }
 
+cg::Mat4 camera::get_cam_xform() const
+{
+    cg::Mat4 rval = cg::matrix::lookat(this->lookfrom - this->lookat, this->lookup);
+    rval *= cg::matrix::translate(this->lookfrom.x, this->lookfrom.y, this->lookfrom.z);
+    rval = cg::matrix::inverted(rval);
+    return rval;
+}
 } // end namespace "obj"
 

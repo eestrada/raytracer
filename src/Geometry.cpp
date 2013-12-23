@@ -7,9 +7,10 @@
 namespace cg
 {
 
-rt::RayHit_ptr Sphere::intersect(const rt::Ray &ray) const
+rt::RayHit_ptr Sphere::intersect(const rt::Ray &ray, const Mat4 &xform) const
 {
-    Vec3 L = this->center - ray.pos;
+    Vec3 new_center = xform * Vec4(this->center, 1.0);
+    Vec3 L = new_center - ray.pos;
     double tca = L.dot(ray.dir.normalized());
     if (tca < 0) return rt::RayHit_ptr(); // We already know if the intersection is behind us.
 
@@ -23,7 +24,7 @@ rt::RayHit_ptr Sphere::intersect(const rt::Ray &ray) const
     rt::RayHit_ptr rval(new rt::RayHit());
     rval->distance = tca - thc;
     rval->data.pos = ray.pos + ray.dir.normalized() * rval->distance;
-    rval->data.dir = (rval->data.pos - this->center).normalized();
+    rval->data.dir = (rval->data.pos - new_center).normalized();
 
     return rval;
 }
@@ -47,33 +48,38 @@ void Triangle::set_points(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2)
     this->pt2 = v2;
 }
 
-rt::RayHit_ptr Triangle::intersect(const rt::Ray &ray) const
+rt::RayHit_ptr Triangle::intersect(const rt::Ray &ray, const Mat4 &xform) const
 {
     rt::RayHit_ptr rval;
 
-    double denom = ray.dir.dot(this->nml);
+    Vec3 tmp_pt0 = xform * Vec4(this->pt0, 1.0);
+    Vec3 tmp_pt1 = xform * Vec4(this->pt1, 1.0);
+    Vec3 tmp_pt2 = xform * Vec4(this->pt2, 1.0);
+    Vec3 tmp_nml = xform * Vec4(this->nml, 0.0);
+
+    double denom = ray.dir.dot(tmp_nml);
     if (denom == 0.0) return rval; // We are perfectly perpendicular to the triangle.
 
-    Vec3 ptro = pt0 - ray.pos;
-    double d = ptro.dot(this->nml) / denom;
+    Vec3 ptro = tmp_pt0 - ray.pos;
+    double d = ptro.dot(tmp_nml) / denom;
 
     if(d < 0) return rval; // Is the triangle in front of the camera?
 
     Vec3 P =  ray.pos + (ray.dir.normalized() * d);
-    Vec3 edge0 = this->pt1 - this->pt0;
-    Vec3 edge1 = this->pt2 - this->pt1;
-    Vec3 edge2 = this->pt0 - this->pt2;
-    Vec3 C0 = P - this->pt0;
-    Vec3 C1 = P - this->pt1;
-    Vec3 C2 = P - this->pt2;
+    Vec3 edge0 = tmp_pt1 - tmp_pt0;
+    Vec3 edge1 = tmp_pt2 - tmp_pt1;
+    Vec3 edge2 = tmp_pt0 - tmp_pt2;
+    Vec3 C0 = P - tmp_pt0;
+    Vec3 C1 = P - tmp_pt1;
+    Vec3 C2 = P - tmp_pt2;
 
-    if( this->nml.dot(edge0.cross(C0)) > 0 &&
-        this->nml.dot(edge1.cross(C1)) > 0 &&
-        this->nml.dot(edge2.cross(C2)) > 0) // Is intersection within the triangle face?
+    if( tmp_nml.dot(edge0.cross(C0)) > 0 &&
+        tmp_nml.dot(edge1.cross(C1)) > 0 &&
+        tmp_nml.dot(edge2.cross(C2)) > 0) // Is intersection within the triangle face?
     {
         rval.reset(new rt::RayHit());
         rval->distance = d;
-        rval->data.dir = this->nml;
+        rval->data.dir = tmp_nml;
         rval->data.pos = P;
     }
 
@@ -91,3 +97,4 @@ std::ostream & operator<<(std::ostream &out, const cg::Geometry &g)
 {
     return out << g.to_string() << "\n";
 }
+

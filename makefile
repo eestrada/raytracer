@@ -1,7 +1,9 @@
 BIN = ./test.bin
 INPUT = ./scenes/diffuse.rayTracing
-OUTPUT = ./tmp.ppm
+OUTPUT = ./diffuse.ppm
 ARGS ?= $(INPUT) $(OUTPUT)
+ARGS1 ?= $(INPUT) $(OUTPUT)
+ARGS2 ?= ./scenes/SceneII.rayTracing ./SceneII.ppm
 DISPLAY = display
 
 SRCDIR = ./src
@@ -20,7 +22,8 @@ CXXFLAGS = -std=c++0x -O0 -g -Wall -pedantic $(INCLUDES)
 
 run : $(BIN)
 	@ echo "Testing executable"
-	$(BIN) $(ARGS)
+	$(BIN) $(ARGS1)
+	$(BIN) $(ARGS2)
 
 bin : $(BIN)
 

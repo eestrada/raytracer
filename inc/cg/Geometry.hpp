@@ -20,14 +20,14 @@ struct Geometry
     Clr3 diffuse, specular, reflection;
     bool reflect;
     
-    virtual rt::RayHit_ptr intersect(const rt::Ray &ray) const = 0;
+    virtual rt::RayHit_ptr intersect(const rt::Ray &ray, const Mat4 &xform) const = 0;
     virtual std::string to_string(void) const = 0;
 };
 
 struct Triangle : public Geometry
 {
     void set_points(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2);
-    virtual rt::RayHit_ptr intersect(const rt::Ray &ray) const;
+    virtual rt::RayHit_ptr intersect(const rt::Ray &ray, const Mat4 &xform) const;
     virtual std::string to_string(void) const;
 
 protected:
@@ -38,14 +38,14 @@ struct Sphere : public Geometry
 {
     double radius;
     Vec3 center;
-    virtual rt::RayHit_ptr intersect(const rt::Ray &ray) const;
+    virtual rt::RayHit_ptr intersect(const rt::Ray &ray, const Mat4 &xform) const;
     virtual std::string to_string(void) const;
 };
 
 struct TriMesh : public Geometry
 {
     std::vector<Triangle> mesh;
-    virtual rt::RayHit_ptr intersect(const rt::Ray &ray) const;
+    virtual rt::RayHit_ptr intersect(const rt::Ray &ray, const Mat4 &xform) const;
     virtual std::string to_string(void) const;
 };
 
