@@ -6,6 +6,7 @@
 namespace obj
 {
 const static long double PI = std::acos(-1.0L);
+scene object::scn = scene();
 
 object::object() : transform(1.0), parent() {}
 
@@ -24,8 +25,8 @@ cg::Mat4 object::get_xform() const
 
 cg::Clr3_ptr light::shadow(const cg::Vec3 &position) const
 {
-    // Return white (indicating full light). Ambient lights are so easy. :)
-    return cg::Clr3_ptr(new cg::Clr3(1));
+    // Return clr (indicating full light). Ambient lights are so easy. :)
+    return cg::Clr3_ptr(new cg::Clr3(this->clr));
 }
 
 cg::Vec3 light::light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const
@@ -35,6 +36,31 @@ cg::Vec3 light::light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const
 
 cg::Clr3_ptr dist_lght::shadow(const cg::Vec3 &position) const
 {
+    // Compute shadow ray
+    rt::Ray shdwray;
+    shdwray.pos = position;
+    shdwray.dir = this->dir_to_light.normalized();
+
+    // Shoot shadow ray
+    double min = 1e8;
+    rt::RayHit_ptr hit;
+    std::shared_ptr<obj::geo> sh_obj;
+
+    for(auto tmp_obj : this->scn.scene_geo)
+    {
+        rt::RayHit_ptr rh = tmp_obj->trace(shdwray);
+        if(rh)
+        {
+            return cg::Clr3_ptr(); // If we hit something, then we are shadowing, so bail early.
+            if(rh->distance < min)
+            {
+                hit = rh;
+                min = hit->distance;
+                sh_obj = tmp_obj;
+            }
+        }
+    }
+
     // Lazily return our parent's implementation for now.
     return light::shadow(position);
 }

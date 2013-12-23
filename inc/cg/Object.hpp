@@ -13,6 +13,7 @@ namespace obj
 {
 
 struct object;
+struct scene;
 typedef std::shared_ptr<object> object_ptr;
 
 struct object
@@ -29,6 +30,8 @@ public: // Functions
 public: // Variables
     cg::Mat4 transform;
     object_ptr parent;
+
+    static scene scn;
 };
 
 struct geo : public object

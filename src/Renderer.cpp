@@ -1,4 +1,5 @@
 #include <memory>
+#include <typeinfo>
 #include <iostream>
 #include <istream>
 #include <ostream>
@@ -47,13 +48,13 @@ void parse_material(const std::string &str, std::shared_ptr<cg::Geometry> g)
     }
 }
 
-obj::scene parse_scene_file(std::istream &in)
+obj::scene & parse_scene_file(std::istream &in, obj::scene &scn)
 {
-    obj::scene scn;
+    //obj::scene scn;
     scn.scene_camera.reset(new obj::camera);
     auto cam = scn.scene_camera;
 
-    std::shared_ptr<obj::light> dst(new obj::dist_lght);
+    std::shared_ptr<obj::dist_lght> dst(new obj::dist_lght);
     scn.scene_lights.push_back(dst);
 
     std::shared_ptr<obj::light> amb(new obj::amb_lght);
@@ -69,6 +70,7 @@ obj::scene parse_scene_file(std::istream &in)
 
     // Light Settings
     // Distant Light
+    in >> tmp >> dst->dir_to_light.x >> dst->dir_to_light.y >> dst->dir_to_light.z;
     in >> tmp >> dst->clr.r() >> dst->clr.g() >> dst->clr.b();
     // Ambient Light
     in >> tmp >> amb->clr.r() >> amb->clr.g() >> amb->clr.b();
@@ -108,10 +110,9 @@ obj::scene parse_scene_file(std::istream &in)
 
             cg::Vec3 v0, v1, v2;
 
-            // Reverse point order to simplify math later.
-            strm >> v2.x >> v2.y >> v2.z;
-            strm >> v1.x >> v1.y >> v1.z;
             strm >> v0.x >> v0.y >> v0.z;
+            strm >> v1.x >> v1.y >> v1.z;
+            strm >> v2.x >> v2.y >> v2.z;
 
             triangle->set_points(v0, v1, v2);
 
@@ -164,17 +165,40 @@ int render(const obj::scene &scn, std::ostream &out)
 
             if(hit) // We hit something!
             {
+                // Color to hold result. Init to black.
+                cg::Clr3 clr(0.0);
+                // Add small bias
+                hit->data.pos = hit->data.pos + (hit->data.dir.normalized() * 0.01);
+
                 for(auto lght_ptr : scn.scene_lights) // Compute light contribution
                 {
                     // TODO: Check for shadowing
 
-                    cg::Clr3_ptr shadow = lght_ptr->shadow(hit->data.pos);
+                    cg::Clr3_ptr unshadowed = lght_ptr->shadow(hit->data.pos);
 
                     // If shadow pointer is null, we are fully in shadow, so skip the rest.
-                    if(!shadow) continue;
+                    if(unshadowed)
+                    {
+                        //clr = object->g->diffuse;
+                        //continue;
+                        if(typeid(*lght_ptr) == typeid(obj::light))
+                        {
+                            clr += object->g->diffuse * (*unshadowed);
+                            //std::clog << "found the ambient light!" << std::endl;
 
-                    // TODO: Compute diffuse
-                    // TODO: Compute Specular
+                            continue;
+                        }
+                        else
+                        {
+                            // Compute diffuse
+                            cg::Vec3 L = lght_ptr->light_dir(hit->data.pos, hit->data.dir);
+                            double NdotL = hit->data.dir.normalized().dot(-L.normalized());
+                            double diff = cg::utils::clamp(NdotL, 0.0, 1.0);
+                            clr += object->g->diffuse * *unshadowed * diff;
+                            // TODO: Compute Specular
+                        }
+                    }
+
                 }
 
                 for(auto tmp_obj : scn.scene_geo) // Compute reflections
@@ -184,11 +208,7 @@ int render(const obj::scene &scn, std::ostream &out)
                     // TODO: Compute object reflections
                 }
 
-                img.at(w,h) = pixel_ctor<float>(
-                    object->g->diffuse.r(),
-                    object->g->diffuse.g(),
-                    object->g->diffuse.b(),
-                    1.0);
+                img.at(w,h) = pixel_ctor<float>(clr.r(), clr.g(), clr.b(), 1.0);
             }
             else // We didn't hit anything, set to BG color
             {
@@ -238,7 +258,7 @@ int main(int argc, char **argv)
     if(tmpout.get() == &std::cout) tmpout.release();
 
     // Parse scene
-    obj::scene scn = parse_scene_file(in);
+    obj::scene &scn = parse_scene_file(in, obj::object::scn);
 
     // Render scene
     return render(scn, out);
