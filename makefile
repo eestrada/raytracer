@@ -1,7 +1,7 @@
 BIN = ./test.bin
 INPUT = ./scenes/diffuse.rayTracing
 OUTPUT = ./tmp.ppm
-ARGS = $(INPUT) $(OUTPUT)
+ARGS ?= $(INPUT) $(OUTPUT)
 DISPLAY = display
 
 SRCDIR = ./src

@@ -15,8 +15,6 @@
 
 namespace rt // rt for Ray Trace
 {
-// "Global" variables. Hopefully everything can be object oriented instead.
-const uint8_t MAX_RAY_DEPTH = 3;
 
 // Function declarations
 void parse_material(const std::string &str, std::shared_ptr<cg::Geometry> g)
@@ -167,54 +165,13 @@ int render(const obj::scene &scn, std::ostream &out)
             if(hit) // We hit something!
             {
                 // Color to hold result. Init to black.
-                cg::Clr3 clr(0.0);
+                cg::Clr3_ptr clr(new cg::Clr3(0.0));
                 // Add very small bias
                 hit->data.pos = hit->data.pos + (hit->data.dir.normalized() * 1e-12);
 
-                for(auto lght_ptr : scn.scene_lights) // Compute light contribution
-                {
-                    // TODO: Check for shadowing
+                clr = object->shade(hit->data, prim_ray->dir);
 
-                    cg::Clr3_ptr unshadowed = lght_ptr->shadow(hit->data.pos);
-
-                    // If shadow pointer is null, we are fully in shadow, so skip the rest.
-                    if(unshadowed)
-                    {
-                        // Check for ambient light
-                        if(typeid(*lght_ptr) == typeid(obj::light))
-                        {
-                            clr += object->g->diffuse * (*unshadowed);
-
-                        }
-                        else
-                        {
-                            // Compute diffuse
-                            cg::Vec3 I = prim_ray->dir.normalized();
-                            cg::Vec3 P = hit->data.pos;
-                            cg::Vec3 N = hit->data.dir.normalized();
-                            cg::Vec3 L = lght_ptr->light_dir(P, N);
-                            double NdotL = N.dot(-L.normalized());
-                            double diff = cg::utils::clamp(NdotL, 0.0, 1.0);
-                            clr += *unshadowed * object->g->diffuse * diff;
-
-                            // Compute Specular
-                            cg::Vec3 R = 2 * (N.dot(L)) * N - L;
-                            double phong = std::max(0.0, I.dot(R));
-                            phong = std::pow(phong, object->g->phong);
-                            clr += *unshadowed * object->g->specular * phong;
-                        }
-                    }
-                }
-
-                if(object->g->reflect) // Whether to compute reflection
-                {
-                    for(auto tmp_obj : scn.scene_geo) // Compute reflections
-                    {
-                        // TODO: Compute object reflections
-                    }
-                }
-
-                img.at(w,h) = pixel_ctor<float>(clr.r(), clr.g(), clr.b(), 1.0);
+                img.at(w,h) = pixel_ctor<float>(clr->r(), clr->g(), clr->b(), 1.0);
             }
             else // We didn't hit anything, set to BG color
             {

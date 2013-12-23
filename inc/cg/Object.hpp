@@ -39,6 +39,7 @@ struct geo : public object
 public:
     virtual void set_geo(cg::geo_ptr g_in);
     virtual rt::RayHit_ptr trace(const rt::Ray &ray) const;
+    virtual cg::Clr3_ptr shade(const rt::Ray &ray, const cg::Vec3 &I) const;
 
     cg::geo_ptr g;
 };

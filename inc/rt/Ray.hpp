@@ -8,6 +8,8 @@
 
 namespace rt
 {
+// "Global" variables. Hopefully everything can be object oriented instead.
+const uint8_t MAX_RAY_DEPTH = 3;
 
 struct Ray
 {
