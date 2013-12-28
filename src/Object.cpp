@@ -156,7 +156,7 @@ cg::Clr3_ptr geo::shade(const rt::Ray &surf, const cg::Vec3 &I) const
         }
         else
         {
-            clr += this->scn.scene_camera->bg * 0.7;
+            clr += this->scn.scene_camera->bg * this->g->reflection;
         }
     }
 

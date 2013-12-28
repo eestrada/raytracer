@@ -79,6 +79,7 @@ rt::RayHit_ptr Triangle::intersect(const rt::Ray &ray, const Mat4 &xform) const
     {
         rval.reset(new rt::RayHit());
         rval->distance = d;
+        if(tmp_nml.dot(ray.dir) > 0) tmp_nml = -tmp_nml; // Make normals forward facing.
         rval->data.dir = tmp_nml;
         rval->data.pos = P;
     }
