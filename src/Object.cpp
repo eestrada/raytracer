@@ -74,7 +74,7 @@ cg::Vec3 dist_lght::light_dir(const cg::Vec3 &pos, const cg::Vec3 &nml) const
 rt::RayHit_ptr geo::trace(const rt::Ray &ray) const
 {
     cg::Mat4 xform = this->get_xform();
-    //xform = this->scn.scene_camera->get_cam_xform() * xform;
+    xform = this->scn.scene_camera->get_cam_xform() * xform;
     return g->intersect(ray, xform);
 }
 
@@ -173,6 +173,11 @@ camera::camera(cg::Vec3 from, cg::Vec3 at, cg::Vec3 up,
         lookfrom(from), lookat(at), lookup(up), fov(fov_in),
         aspect(double(w)/double(h)), xres(w), yres(h), bg(bg_clr)
 {
+    this->xform = cg::matrix::lookat(this->lookfrom - this->lookat, this->lookup);
+    this->xform *= cg::matrix::translate(this->lookfrom.x, this->lookfrom.y, this->lookfrom.z);
+    this->xform = cg::matrix::inverted(this->xform);
+
+    this->angle = std::tan(PI * 0.5 * (this->fov * 2)/180.0);
 }
 
 uint16_t camera::get_width() const { return xres; }
@@ -183,37 +188,21 @@ uint16_t camera::get_height() const { return yres; }
 rt::Ray_ptr camera::get_ray(float x, float y) const
 {
     double invw = 1.0/this->xres, invy = 1.0/this->yres;
-    double angle = std::tan(PI * 0.5 * (this->fov * 2)/180.0);
-    //double angle = std::tan(PI * 0.5 * (this->fov)/180.0);
 
-    double xray = (2 * ((x + 0.5) * invw) - 1) * angle * this->aspect;
-    double yray = (1 - 2 * ((y + 0.5) * invy)) * angle;
     cg::Vec3 pray;
-    pray.x = xray;
-    pray.y = yray;
+    pray.x = (2 * ((x + 0.5) * invw) - 1) * this->angle * this->aspect;
+    pray.y = (1 - 2 * ((y + 0.5) * invy)) * this->angle;
     pray.z = -1;
 
-    cg::Mat4 xform = cg::matrix::lookat(this->lookfrom - this->lookat, this->lookup);
-    xform *= cg::matrix::translate(this->lookfrom.x, this->lookfrom.y, this->lookfrom.z);
-
-    cg::Vec3 ray = xform * cg::Vec4(pray.normalized(), 0.0);
-    //cg::Vec3 ray = pray.normalized();
-
     rt::Ray_ptr rval(new rt::Ray());
-    rval->dir = ray;
-    rval->pos = xform * cg::Vec4(cg::Vec3(), 1.0);
-    //rval->pos = this->lookfrom;
-    //rval->pos.x = rval->pos.y = 0; rval->pos.z = 0;
+    rval->dir = pray.normalized();
 
     return rval;
 }
 
 cg::Mat4 camera::get_cam_xform() const
 {
-    cg::Mat4 rval = cg::matrix::lookat(this->lookfrom - this->lookat, this->lookup);
-    rval *= cg::matrix::translate(this->lookfrom.x, this->lookfrom.y, this->lookfrom.z);
-    rval = cg::matrix::inverted(rval);
-    return rval;
+    return this->xform;
 }
 } // end namespace "obj"
 

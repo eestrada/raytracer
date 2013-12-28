@@ -56,8 +56,9 @@ struct camera : public object
 
 protected:
     cg::Vec3 lookfrom, lookat, lookup;
-    double fov, aspect, znear, zfar;
+    double fov, angle, aspect, znear, zfar;
     uint16_t xres, yres;
+    cg::Mat4 xform;
 
 public:
     cg::Clr3 bg;

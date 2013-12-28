@@ -73,7 +73,7 @@ obj::scene & parse_scene_file(std::istream &in, obj::scene &scn)
     in >> tmp >> dst->clr.r() >> dst->clr.g() >> dst->clr.b();
     // Ambient Light
     in >> tmp >> amb->clr.r() >> amb->clr.g() >> amb->clr.b();
-    // BG Color
+    // Camera BG Color
     in >> tmp >> bg.r() >> bg.g() >> bg.b();
 
     scn.scene_camera.reset(new obj::camera(lookfrom, lookat, lookup, fov, w, h, bg));

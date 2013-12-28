@@ -1,4 +1,4 @@
-BIN = ./test.bin
+BIN = ./raytracer.bin
 INPUT = ./scenes/diffuse.rayTracing
 OUTPUT = ./diffuse.ppm
 ARGS ?= $(INPUT) $(OUTPUT)
@@ -34,7 +34,6 @@ test : clean memcheck
 clean :
 	@ echo "Removing generated files"
 	@rm -vf $(BIN)
-	@rm -vf $(OUTPUT)
 	@rm -vrf $(OBJDIR)
 
 memcheck : $(BIN) 
