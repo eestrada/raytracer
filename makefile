@@ -4,6 +4,7 @@ OUTPUT = ./diffuse.ppm
 ARGS ?= $(INPUT) $(OUTPUT)
 ARGS1 ?= $(INPUT) $(OUTPUT)
 ARGS2 ?= ./scenes/SceneII.rayTracing ./SceneII.ppm
+ARGS3 ?= ./scenes/custom.rayTracing ./custom.ppm
 DISPLAY = display
 
 SRCDIR = ./src
@@ -24,6 +25,7 @@ run : $(BIN)
 	@ echo "Testing executable"
 	$(BIN) $(ARGS1)
 	$(BIN) $(ARGS2)
+	$(BIN) $(ARGS3)
 
 bin : $(BIN)
 

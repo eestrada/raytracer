@@ -49,10 +49,6 @@ void parse_material(const std::string &str, std::shared_ptr<cg::Geometry> g)
 
 obj::scene & parse_scene_file(std::istream &in, obj::scene &scn)
 {
-    //obj::scene scn;
-    scn.scene_camera.reset(new obj::camera);
-    auto cam = scn.scene_camera;
-
     std::shared_ptr<obj::dist_lght> dst(new obj::dist_lght);
     scn.scene_lights.push_back(dst);
 
@@ -61,11 +57,15 @@ obj::scene & parse_scene_file(std::istream &in, obj::scene &scn)
     std::string tmp;
 
     // Camera Settings
-    cam->xres = cam->yres = 512;
-    in >> tmp >> cam->lookat.x >> cam->lookat.y >> cam->lookat.z; // Parse cam lookat
-    in >> tmp >> cam->lookfrom.x >> cam->lookfrom.y >> cam->lookfrom.z; // Parse cam lookfrom
-    in >> tmp >> cam->lookup.x >> cam->lookup.y >> cam->lookup.z; // Parse cam lookup
-    in >> tmp >> cam->fov; // Parse cam Field of View
+    cg::Vec3 lookat, lookfrom, lookup;
+    float fov;
+    cg::Clr3 bg;
+    uint16_t w, h;
+    w = h = 512;
+    in >> tmp >> lookat.x >> lookat.y >> lookat.z; // Parse cam lookat
+    in >> tmp >> lookfrom.x >> lookfrom.y >> lookfrom.z; // Parse cam lookfrom
+    in >> tmp >> lookup.x >> lookup.y >> lookup.z; // Parse cam lookup
+    in >> tmp >> fov; // Parse cam Field of View
 
     // Light Settings
     // Distant Light
@@ -74,7 +74,9 @@ obj::scene & parse_scene_file(std::istream &in, obj::scene &scn)
     // Ambient Light
     in >> tmp >> amb->clr.r() >> amb->clr.g() >> amb->clr.b();
     // BG Color
-    in >> tmp >> cam->bg.r() >> cam->bg.g() >> cam->bg.b();
+    in >> tmp >> bg.r() >> bg.g() >> bg.b();
+
+    scn.scene_camera.reset(new obj::camera(lookfrom, lookat, lookup, fov, w, h, bg));
 
     while(!in.eof())
     {
@@ -132,7 +134,7 @@ int render(const obj::scene &scn, std::ostream &out)
 {
     using cg::pixel_ctor;
     auto cam = scn.scene_camera;
-    cg::Image img(scn.scene_camera->xres, scn.scene_camera->yres);
+    cg::Image img(scn.scene_camera->get_width(), scn.scene_camera->get_height());
 
     std::clog << "Image height: " << img.get_height() << std::endl;
     std::clog << "Image width: " << img.get_width() << std::endl;
@@ -221,10 +223,10 @@ int main(int argc, char **argv)
     if(tmpout.get() == &std::cout) tmpout.release();
 
     // Parse scene
-    obj::scene &scn = parse_scene_file(in, obj::object::scn);
+    parse_scene_file(in, obj::object::scn);
 
     // Render scene
-    return render(scn, out);
+    return render(obj::object::scn, out);
 }
 
 } // End namespace "rt"

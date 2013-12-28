@@ -168,15 +168,25 @@ void geo::set_geo(cg::geo_ptr g_in)
     this->g = g_in;
 }
 
+camera::camera(cg::Vec3 from, cg::Vec3 at, cg::Vec3 up,
+    double fov_in, uint16_t w, uint16_t h, cg::Clr3 bg_clr) :
+        lookfrom(from), lookat(at), lookup(up), fov(fov_in),
+        aspect(double(w)/double(h)), xres(w), yres(h), bg(bg_clr)
+{
+}
+
+uint16_t camera::get_width() const { return xres; }
+
+uint16_t camera::get_height() const { return yres; }
+
 // TODO: Fix primary ray generation
-rt::Ray_ptr camera::get_ray(uint16_t x, uint16_t y) const
+rt::Ray_ptr camera::get_ray(float x, float y) const
 {
     double invw = 1.0/this->xres, invy = 1.0/this->yres;
-    double aspect = double(this->xres)/double(this->yres);
     double angle = std::tan(PI * 0.5 * (this->fov * 2)/180.0);
     //double angle = std::tan(PI * 0.5 * (this->fov)/180.0);
 
-    double xray = (2 * ((x + 0.5) * invw) - 1) * angle * aspect;
+    double xray = (2 * ((x + 0.5) * invw) - 1) * angle * this->aspect;
     double yray = (1 - 2 * ((y + 0.5) * invy)) * angle;
     cg::Vec3 pray;
     pray.x = xray;

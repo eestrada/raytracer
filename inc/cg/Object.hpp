@@ -46,13 +46,21 @@ public:
 
 struct camera : public object
 {
-    uint16_t xres, yres;
-    double fov, aspect, znear, zfar;
-    cg::Vec3 lookat, lookfrom, lookup;
-    cg::Clr3 bg;
-
-    rt::Ray_ptr get_ray(uint16_t x, uint16_t y) const;
+    camera();
+    camera(cg::Vec3 from, cg::Vec3 at, cg::Vec3 up, double fov,
+        uint16_t w, uint16_t h, cg::Clr3 bg);
+    rt::Ray_ptr get_ray(float x, float y) const;
+    uint16_t get_width() const;
+    uint16_t get_height() const;
     cg::Mat4 get_cam_xform() const;
+
+protected:
+    cg::Vec3 lookfrom, lookat, lookup;
+    double fov, aspect, znear, zfar;
+    uint16_t xres, yres;
+
+public:
+    cg::Clr3 bg;
 };
 
 struct light : public object
@@ -102,18 +110,6 @@ std::shared_ptr<camera> scene_camera;
 };
 
 } // end namespace "obj"
-
-inline std::ostream & operator<<(std::ostream &out, const obj::camera &cam)
-{
-    out << "Camera settings:\n";
-    out << "Resolution " << cam.xres << "x" << cam.yres << "\n";
-    out << "Field of View " << cam.fov << "\n";
-    out << "Look At " << cam.lookat << "\n";
-    out << "Look From " << cam.lookfrom << "\n";
-    out << "Look Up " << cam.lookup << "\n";
-
-    return out;
-}
 
 #endif //finish include guard
 
