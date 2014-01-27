@@ -17,7 +17,7 @@ INCS = $(wildcard $(INCDIR)/*.h*) $(wildcard $(INCDIR)/rt/*.*) $(wildcard $(INCD
 
 INCLUDES= -I$(INCDIR)/
 CXX ?= c++
-CXXFLAGS = -std=c++0x -O0 -g -Wall -pedantic $(INCLUDES)
+CXXFLAGS = -std=c++0x -O3 -g -Wall -pedantic $(INCLUDES)
 
 .PHONY : run bin test clean memcheck
 
